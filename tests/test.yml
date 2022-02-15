@@ -1,0 +1,21 @@
+---
+
+- hosts: servers
+  gather_facts: true
+  pre_tasks:
+    - name: COMMAND | Install openssl
+      command: openssl req -new -newkey rsa:4096 -days 3650 -nodes -x509 -subj "/CN={{ ansible_fqdn }}" -keyout {{ teleport_config_proxy_service_key_pairs.0.key_file }} -out {{ teleport_config_proxy_service_key_pairs.0.cert_file }} 
+      args:
+        creates: "{{ teleport_config_proxy_service_key_pairs.0.key_file }}" 
+
+- hosts: all
+  gather_facts: true
+  pre_tasks:
+    - name: APT | Install debug packets
+      apt:
+        name: '{{ item }}'
+        update_cache: yes
+        cache_valid_time: 3600
+      loop: ['vim', 'curl']
+  roles:
+    - ../../

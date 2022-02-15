@@ -1,0 +1,7 @@
+---
+
+#teleport_config_proxy_service_public_addr: "{{ ansible_fqdn }}:443"
+
+teleport_config_proxy_service_key_pairs:
+  - key_file:  /etc/teleport_server.key
+    cert_file: /etc/teleport_server.cert

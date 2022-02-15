@@ -1,0 +1,9 @@
+---
+
+teleport_config_teleport_auth_token: '{{ __shared_token_node }}'
+teleport_config_teleport_auth_servers: ['teleport-server-debian-bullseye:3025']
+teleport_config_auth_service_enabled: 'no'
+teleport_config_proxy_service_enabled: 'no'
+teleport_config_ssh_service_labels:
+  teleport_type: teleport_node
+  env: dev

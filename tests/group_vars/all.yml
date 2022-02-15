@@ -1,0 +1,16 @@
+---
+
+__shared_token_node: 'haexai1yoobairoh2ri0veiru7tohyoh'
+teleport_config_auth_service_tokens:
+  - 'node:{{ __shared_token_node }}'
+
+teleport_config_ssh_service_commands:
+  - name: os_type
+    command: ['/bin/uname', '-s']
+    period: 24h0m0s
+  - name: os_name
+    command: ['/usr/bin/lsb_release', '-is']
+    period: 24h0m0s
+  - name: os_version
+    command: ['/usr/bin/lsb_release', '-rs']
+    period: 24h0m0s

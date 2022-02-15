@@ -1,0 +1,6 @@
+---
+
+- name: restart teleport
+  service:
+    name: teleport
+    state: restarted

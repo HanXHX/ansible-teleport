@@ -1,0 +1,79 @@
+---
+
+#
+# Default values
+#
+teleport_default_public_addr: '{{ ansible_fqdn }}'
+teleport_default_web_port: 443
+teleport_default_ssh_port: 3022
+teleport_default_auth_port: 3025
+
+#
+# Teleport global configuration
+#
+teleport_config_teleport_nodename: "{{ ansible_fqdn }}"
+teleport_config_teleport_datadir: "/var/lib/teleport"
+teleport_config_teleport_auth_token: null 
+teleport_config_teleport_ca_pin: null
+teleport_config_teleport_advertise_ip: null
+teleport_config_teleport_auth_servers: ['{{ teleport_default_public_addr }}:{{ teleport_default_auth_port }}']
+
+teleport_config_teleport_log_output: '/var/lib/teleport/teleport.log'
+teleport_config_teleport_log_severity: 'ERROR'
+
+teleport_config_teleport_storage_type: 'dir'
+teleport_config_teleport_storage_audit_events_uri: ['file:///var/lib/teleport/log']
+teleport_config_teleport_storage_audit_sessions_uri: null
+
+teleport_config_teleport_ca_signature_algo: null
+teleport_config_teleport_cyphers: null
+teleport_config_teleport_kex_algos: null
+teleport_config_teleport_mac_algos: null
+teleport_config_teleport_ciphersuites: null
+
+#
+# Auth service
+#
+teleport_config_auth_service_enabled: "yes"
+teleport_config_auth_service_cluster_name: "ChangeMe"
+teleport_config_auth_service_proxy_protocol: "on"
+teleport_config_auth_service_authentication_type: "local"
+teleport_config_auth_service_authentication_second_factor: "off"
+
+teleport_config_auth_service_listen_addr: '0.0.0.0:{{ teleport_default_auth_port }}'
+teleport_config_auth_service_public_addr: '{{ teleport_default_public_addr }}:{{ teleport_default_auth_port }}' 
+teleport_config_auth_service_tokens: []
+
+#
+# SSH Service
+#
+teleport_config_ssh_service_enabled: "yes"
+teleport_config_ssh_service_listen_addr: '0.0.0.0:{{ teleport_default_ssh_port }}' 
+teleport_config_ssh_service_public_addr: '{{ teleport_default_public_addr }}:{{ teleport_default_ssh_port }}' 
+teleport_config_ssh_service_labels: {}
+teleport_config_ssh_service_commands: []
+teleport_config_ssh_service_permit_user_env: false
+teleport_config_ssh_service_enhanced_recording_enabled: false
+teleport_config_ssh_service_pam_enabled: 'no'
+teleport_config_ssh_service_port_forwarding: true
+
+#
+# Proxy Service
+#
+teleport_config_proxy_service_enabled: "yes"
+teleport_config_proxy_service_proxy_protocol: 'on' 
+teleport_config_proxy_service_listen_addr: null 
+teleport_config_proxy_service_tunnel_listen_addr: null 
+teleport_config_proxy_service_web_listen_addr: "0.0.0.0:{{ teleport_default_web_port }}"
+teleport_config_proxy_service_public_addr: "{{ teleport_default_public_addr }}:{{ teleport_default_web_port }}"
+teleport_config_proxy_service_ssh_public_addr: null
+teleport_config_proxy_service_tunnel_public_addr: null
+teleport_config_proxy_service_https_keypairs: []
+teleport_config_proxy_service_acme_enabled: 'no'
+teleport_config_proxy_service_acme_email: null
+
+#
+# DB Service
+#
+teleport_config_db_service_enabled: 'no'
+teleport_config_db_service_databases: []

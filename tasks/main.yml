@@ -1,0 +1,22 @@
+---
+
+- name: STAT | Check if teleport installed
+  stat:
+    path: "{{ teleport_bin_path }}"
+  register: teleport_installed
+
+- name: IMPORT_TASKS | Install
+  import_tasks: install.yml
+  when: not teleport_installed.stat.exists
+
+- name: TEMPLATE | Configure Teleport
+  template:
+    src: teleport.yaml.j2
+    dest: /etc/teleport.yaml
+  notify: restart teleport
+
+- name: SERVICE | Ensure Teleport is started and enabled on boot
+  service:
+    name: teleport 
+    state: started 
+    enabled: true 

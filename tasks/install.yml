@@ -1,0 +1,20 @@
+---
+
+- name: APT | Install GPG
+  apt:
+    name: 'gpg'
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: APT_KEY | Add teleport GPG key
+  apt_key:
+    url: '{{ teleport_apt_key_url }}'
+
+- name: APT_REPOSITORY | Add teleport APT repository
+  apt_repository:
+    repo: '{{ teleport_apt_repository }}'
+
+- name: APT | Install teleport
+  apt:
+    name: '{{ teleport_apt_package }}'
+    state: present

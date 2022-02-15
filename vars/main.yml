@@ -1,0 +1,6 @@
+---
+
+teleport_apt_key_url: 'https://deb.releases.teleport.dev/teleport-pubkey.asc'
+teleport_apt_repository: 'deb https://deb.releases.teleport.dev/ stable main'
+teleport_apt_package: 'teleport'
+teleport_bin_path: '/usr/local/bin/teleport'
