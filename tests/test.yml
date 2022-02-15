@@ -23,12 +23,16 @@
 - hosts: servers
   gather_facts: false
   vars:
-    __tls_files: ['/root/server.key', '/root/server.crt', '/root/server.cas']
+    __tls_files: ['/home/vagrant/server.key', '/home/vagrant/server.crt', '/home/vagrant/server.cas']
   tasks:
+    - name: WAIT_FOR | Wait teleport auth up
+      wait_for:
+        port: 3025
+
     - name: COMMAND | Create TLS keys from servers
       command: tctl auth sign --format=db --host=teleport-node-debian-bullseye --out=server --ttl=2190h
       args:
-        chdir: /root
+        chdir: /home/vagrant
         creates: '{{ __tls_files.0 }}'
 
     - name: FETCH | Get TLS files
@@ -39,19 +43,32 @@
       loop: "{{ __tls_files }}"
 
 - hosts: nodes
+  handlers:
+    - name: restart mariadb
+      service:
+        name: mariadb
+        state: restarted
+    - name: restart postgresql
+      service:
+        name: postgresql
+        state: restarted
   tasks:
     - name: APT | Install extra packages (application / database tests)
       apt:
         name: '{{ item }}'
         update_cache: yes
         cache_valid_time: 3600
-      loop: ['netdata', 'mariadb-server', 'mariadb-client']
+      loop: ['netdata', 'mariadb-server', 'mariadb-client', 'python3-pymysql', 'postgresql']
 
     - name: COPY | Deploy teleport TLS config in the node
       copy:
         src: "{{ item }}"
-        dest: "/root/"
+        dest: "/home/vagrant/"
       with_fileglob: "{{ playbook_dir }}/tmp/server.*"
+
+    - name: SHELL | Dirty copy for postgresql
+      shell: 'cp /home/vagrant/server.* /etc/postgresql/ && chown postgres: /etc/postgresql/server.* && chmod 600 /etc/postgresql/server.*'
+      changed_when: false
 
     - name: LINEINFILE | Deploy MariaDB custom config
       lineinfile:
@@ -61,6 +78,38 @@
       loop:
         - '[mysqld]'
         - 'require_secure_transport=ON'
-        - 'ssl-ca=/root/server.cas'
-        - 'ssl-cert=/root/server.crt'
-        - 'ssl-key=/root/server.key'
+        - 'ssl-ca=/home/vagrant/server.cas'
+        - 'ssl-cert=/home/vagrant/server.crt'
+        - 'ssl-key=/home/vagrant/server.key'
+      notify: restart mariadb
+
+    - name: MYSQL_USER | Create test users
+      community.mysql.mysql_user:
+        user: 'test_teleport'
+        password: '1a2b3c'
+        priv: '*.*:ALL'
+        login_unix_socket: "/run/mysqld/mysqld.sock"
+
+    - name: LINEINFILE | Deploy PostgreSQL custom config
+      lineinfile:
+        path: '/etc/postgresql/13/main/postgresql.conf'
+        line: '{{ item.line }}'
+        regexp: '{{ item.regexp }}'
+      loop:
+        - line: 'ssl = on'
+          regexp: '^#?ssl\s+'
+        - line: "ssl_cert_file = '/etc/postgresql/server.crt'"
+          regexp: "^#?ssl_cert_file"
+        - line: "ssl_key_file = '/etc/postgresql/server.key'"
+          regexp: "^#?ssl_key_file"
+        - line: "ssl_ca_file = '/etc/postgresql/server.cas'"
+          regexp: "^#?ssl_ca_file"
+        - line: "listen_addresses = '*'"
+          regexp: "^#?listen_addresses"
+      notify: restart postgresql
+
+    - name: LINEINFILE | Deploy authz on PostgreSQL
+      lineinfile:
+        path: "/etc/postgresql/13/main/pg_hba.conf"
+        line: "hostssl all             all             0.0.0.0/0               cert"
+      notify: restart postgresql

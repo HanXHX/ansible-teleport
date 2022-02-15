@@ -724,51 +724,58 @@ db_service:
   enabled: {{ teleport_config_db_service_enabled }}
   # This section contains definitions of all databases proxied by this
   # service, it can contain multiple database instances.
-{% if teleport_config_db_service_enabled == 'yes' and teleport_config_db_service_databases | length > 0 %}
+{% if teleport_config_db_service_enabled == 'yes' %}
+{% if teleport_config_app_service_apps | length == 0 %}
+  databases: []
+{% else %}
   databases:
-    # Name of the database proxy instance used to reference in CLI.
-    - name: "prod"
-      # Free-form description of the database proxy instance.
-      description: "Production database"
-      # Database protocol. Can be "postgres", "mysql", or "mongodb".
-      protocol: "postgres"
-      # Database connection endpoint. Must be reachable from Database Service.
-      uri: "postgres.example.com:5432"
-      # Optional TLS configuration.
-      tls:
-        # TLS verification mode. Valid options are:
-        # 'verify-full' - performs full certificate validation (default).
-        # 'verify-ca' - the same as `verify-full`, but skips the server name validation.
-        # 'insecure' - accepts any certificate provided by database (not recommended).
-        mode: verify-full
-        # Optional database DNS server name. It allows to override the DNS name on
-        # a client certificate when connecting to a database.
-        # Use only with 'verify-full' mode.
-        server_name: db.example.com
-        # Optional path to the CA used to validate the database certificate.
-        ca_cert_file: /path/to/pem
-      # AWS specific configuration, only required for RDS/Aurora/Redshift.
-      aws:
-        # Region the database is deployed in.
-        region: "us-east-1"
-        # Redshift specific configuration.
-        redshift:
-          # Redshift cluster identifier.
-          cluster_id: "redshift-cluster-1"
-      # GCP specific configuration for Cloud SQL databases.
-      gcp:
-        # GCP project ID.
-        project_id: "xxx-1234"
-        # Cloud SQL instance ID.
-        instance_id: "example"
-      # Static labels to assign to the database. Used in RBAC.
-      static_labels:
-        env: "prod"
-      # Dynamic labels ("commands"). Used in RBAC.
-      dynamic_labels:
-      - name: "hostname"
-        command: ["hostname"]
-        period: 1m0s
+{{ teleport_config_db_service_databases | to_yaml(indent=2, width=1337) | indent(6, first=True) }}
+{% endif %}
+
+# databases:
+#   # Name of the database proxy instance used to reference in CLI.
+#   - name: "prod"
+#     # Free-form description of the database proxy instance.
+#     description: "Production database"
+#     # Database protocol. Can be "postgres", "mysql", or "mongodb".
+#     protocol: "postgres"
+#     # Database connection endpoint. Must be reachable from Database Service.
+#     uri: "postgres.example.com:5432"
+#     # Optional TLS configuration.
+#     tls:
+#       # TLS verification mode. Valid options are:
+#       # 'verify-full' - performs full certificate validation (default).
+#       # 'verify-ca' - the same as `verify-full`, but skips the server name validation.
+#       # 'insecure' - accepts any certificate provided by database (not recommended).
+#       mode: verify-full
+#       # Optional database DNS server name. It allows to override the DNS name on
+#       # a client certificate when connecting to a database.
+#       # Use only with 'verify-full' mode.
+#       server_name: db.example.com
+#       # Optional path to the CA used to validate the database certificate.
+#       ca_cert_file: /path/to/pem
+#     # AWS specific configuration, only required for RDS/Aurora/Redshift.
+#     aws:
+#       # Region the database is deployed in.
+#       region: "us-east-1"
+#       # Redshift specific configuration.
+#       redshift:
+#         # Redshift cluster identifier.
+#         cluster_id: "redshift-cluster-1"
+#     # GCP specific configuration for Cloud SQL databases.
+#     gcp:
+#       # GCP project ID.
+#       project_id: "xxx-1234"
+#       # Cloud SQL instance ID.
+#       instance_id: "example"
+#     # Static labels to assign to the database. Used in RBAC.
+#     static_labels:
+#       env: "prod"
+#     # Dynamic labels ("commands"). Used in RBAC.
+#     dynamic_labels:
+#     - name: "hostname"
+#       command: ["hostname"]
+#       period: 1m0s
 {% endif %}
 
 {# Ansible not managed #}
