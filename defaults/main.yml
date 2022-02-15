@@ -73,6 +73,14 @@ teleport_config_proxy_service_acme_enabled: 'no'
 teleport_config_proxy_service_acme_email: null
 
 #
+# Application Service
+#
+teleport_config_app_service_enabled: 'no'
+teleport_config_app_service_debug_app: false
+teleport_config_app_service_apps: []
+
+
+#
 # DB Service
 #
 teleport_config_db_service_enabled: 'no'

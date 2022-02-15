@@ -1,9 +1,6 @@
 ---
 
 __shared_token_node: 'haexai1yoobairoh2ri0veiru7tohyoh'
-teleport_config_auth_service_tokens:
-  - 'node:{{ __shared_token_node }}'
-
 teleport_config_ssh_service_commands:
   - name: os_type
     command: ['/bin/uname', '-s']

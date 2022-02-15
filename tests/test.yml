@@ -16,6 +16,15 @@
         name: '{{ item }}'
         update_cache: yes
         cache_valid_time: 3600
-      loop: ['vim', 'curl']
+      loop: ['curl', 'htop', 'strace', 'vim']
   roles:
     - ../../
+
+- hosts: nodes
+  tasks:
+    - name: APT | Install extra packages (application / database tests)
+      apt:
+        name: '{{ item }}'
+        update_cache: yes
+        cache_valid_time: 3600
+      loop: ['netdata', 'mariadb-server', 'mariadb-client']

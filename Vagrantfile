@@ -49,7 +49,7 @@ Vagrant.configure("2") do |config|
       m.vm.network "private_network", ip: opts[:ip]
       m.vm.provider "virtualbox" do |v|
         v.cpus = 1
-        v.memory = 256
+        v.memory = 512
       end
 
       m.vm.provision "ansible" do |ansible|

@@ -106,7 +106,7 @@ teleport:
         # an AWS S3 bucket or use GCP Storage with 'gs://'. See "Using Amazon S3"
         # for more information (https://goteleport.com/docs/admin-guide/#using-amazon-s3).
 {% if teleport_config_teleport_storage_audit_sessions_uri is not none %}
-        audit_sessions_uri: {{ teleport_config_teleport_storage_audit_sessions_uri }} 
+        audit_sessions_uri: {{ teleport_config_teleport_storage_audit_sessions_uri }}
 {% else %}
         # audit_sessions_uri: 's3://example.com/path/to/bucket?region=us-east-1'
 {% endif %}
@@ -208,7 +208,7 @@ auth_service:
         #  and 'oidc', 'saml' and 'false' for Enterprise.
         #  only local authentication (Teleport's own user DB) & Github is supported in the open
         #  source version
-        type: {{ teleport_config_auth_service_authentication_type }} 
+        type: {{ teleport_config_auth_service_authentication_type }}
 
         # Sets whether local auth is enabled alongside any other authentication
         # type. Default is true. local_auth must be 'false' for FedRAMP / FIPS.
@@ -220,7 +220,7 @@ auth_service:
         # - 'optional' allows otp and either webauthn (preferred) or u2f.
         # - 'otp', 'webauthn' and 'u2f' require their corresponding second
         #   factor type.
-        second_factor: {{ teleport_config_auth_service_authentication_second_factor }} 
+        second_factor: {{ teleport_config_auth_service_authentication_second_factor }}
 
 {% if teleport_config_auth_service_authentication_second_factor == 'on' or teleport_config_auth_service_authentication_second_factor == 'optional' or teleport_config_auth_service_authentication_second_factor == 'webauthn' %}
         # this section is used if second_factor is set to 'on', 'optional' or
@@ -323,12 +323,12 @@ auth_service:
     # IP and the port to bind to. Other Teleport nodes will be connecting to
     # this port (AKA "Auth API" or "Cluster API") to validate client
     # certificates
-    listen_addr: {{ teleport_config_auth_service_listen_addr }} 
+    listen_addr: {{ teleport_config_auth_service_listen_addr }}
 
     # The optional DNS name for the auth server if located behind a load balancer.
     # See the "Public Addr" section for more details
     # (https://goteleport.com/docs/admin-guide/#public-addr).
-    public_addr: {{ teleport_config_auth_service_public_addr }} 
+    public_addr: {{ teleport_config_auth_service_public_addr }}
 
     # Pre-defined tokens for adding new nodes to a cluster. Each token specifies
     # the role a new node will be allowed to assume. The more secure way to
@@ -428,17 +428,17 @@ auth_service:
 # This section configures the 'node service':
 ssh_service:
     # Turns 'ssh' role on. Default is 'yes'
-    enabled: {{ teleport_config_ssh_service_enabled }} 
+    enabled: {{ teleport_config_ssh_service_enabled }}
 
 {% if teleport_config_ssh_service_enabled == 'yes' %}
     # IP and the port for SSH service to bind to.
-    listen_addr: {{ teleport_config_ssh_service_listen_addr }} 
+    listen_addr: {{ teleport_config_ssh_service_listen_addr }}
 
     # The optional public address the SSH service. This is useful if administrators
     # want to allow users to connect to nodes directly, bypassing a Teleport proxy.
     # See the "Public Addr" section for more details
     # (https://goteleport.com/docs/admin-guide/#public-addr).
-    public_addr: {{ teleport_config_ssh_service_public_addr }} 
+    public_addr: {{ teleport_config_ssh_service_public_addr }}
 
     # See explanation of labels in "Labeling Nodes and Applications" section
     # (https://goteleport.com/docs/admin-guide/#labeling-nodes-and-applications).
@@ -458,14 +458,14 @@ ssh_service:
 
     # Enables reading ~/.tsh/environment before creating a session.
     # By default it's set to false can be set true here or through the command-line flag.
-    permit_user_env: {{ teleport_config_ssh_service_permit_user_env }} 
+    permit_user_env: {{ teleport_config_ssh_service_permit_user_env }}
 
     # Enhanced Session Recording
     # see https://goteleport.com/docs/features/enhanced-session-recording/
     enhanced_recording:
       # Enable or disable enhanced auditing for this node. Default value:
       # false.
-      enabled: {{ teleport_config_ssh_service_enhanced_recording_enabled }} 
+      enabled: {{ teleport_config_ssh_service_enhanced_recording_enabled }}
 
 {% if teleport_config_ssh_service_enhanced_recording_enabled %}
       # command_buffer_size is optional with a default value of 8 pages.
@@ -496,19 +496,19 @@ ssh_service:
 {% endif %}
 
     # Enables/disables TCP forwarding. Default is 'true'
-    port_forwarding: {{ teleport_config_ssh_service_port_forwarding }} 
+    port_forwarding: {{ teleport_config_ssh_service_port_forwarding }}
 {% endif %}
 
 # This section configures the 'proxy service'
 proxy_service:
     # Turns 'proxy' role on. Default is 'yes'
-    enabled: {{ teleport_config_proxy_service_enabled }} 
+    enabled: {{ teleport_config_proxy_service_enabled }}
 
 {% if teleport_config_proxy_service_enabled == "yes" %}
     # ProxyProtocol enables support for HAProxy proxy protocol version 1 when it is turned 'on'.
     # Verify whether the service is in front of a trusted load balancer.
     # The default value is 'on'.
-    proxy_protocol: '{{ teleport_config_proxy_service_proxy_protocol }}' 
+    proxy_protocol: '{{ teleport_config_proxy_service_proxy_protocol }}'
 
     # SSH forwarding/proxy address. Command line (CLI) clients always begin their
     # SSH sessions by connecting to this port
@@ -518,7 +518,7 @@ proxy_service:
     # "v2": listener is not created, SSH is multiplexed on web_listen_addr
     # "v1": defaults to 0.0.0.0:3023
 {% if teleport_config_proxy_service_listen_addr is not none %}
-    listen_addr: {{ teleport_config_proxy_service_listen_addr }} 
+    listen_addr: {{ teleport_config_proxy_service_listen_addr }}
 {% else %}
     # listen_addr: 0.0.0.0:3023
 {% endif %}
@@ -533,7 +533,7 @@ proxy_service:
     # "v2": listener is not created, reverse tunnel traffic is multiplexed on web_listen_addr
     # "v1": defaults to 0.0.0.0:3024
 {% if teleport_config_proxy_service_tunnel_listen_addr is not none %}
-    tunnel_listen_addr: {{ teleport_config_proxy_service_tunnel_listen_addr }} 
+    tunnel_listen_addr: {{ teleport_config_proxy_service_tunnel_listen_addr }}
 {% else %}
     # tunnel_listen_addr: 0.0.0.0:3024
 {% endif %}
@@ -541,7 +541,7 @@ proxy_service:
     # The HTTPS listen address to serve the Web UI and also to authenticate the
     # command line (CLI) users via password+HOTP
     # Also handles the PostgreSQL proxy if database access is enabled.
-    web_listen_addr: {{ teleport_config_proxy_service_web_listen_addr }} 
+    web_listen_addr: {{ teleport_config_proxy_service_web_listen_addr }}
 
     # The DNS name of the proxy HTTPS endpoint as accessible by cluster users.
     # Defaults to the proxy's hostname if not specified. If running multiple
@@ -632,40 +632,52 @@ proxy_service:
 {% endif %}
 {% endif %}
 
-{# Ansible not managed #}
-{% if false %}
 # This section configures the 'application service'
 app_service:
     # Turns 'app' role on. Default is 'no'
-    enabled: yes
+    enabled: {{ teleport_config_app_service_enabled }}
+{% if teleport_config_app_service_enabled == 'yes' %}
     # Teleport contains a small debug app that can be used to make sure Application
     # Access is working correctly. The app outputs JWTs so it can be useful
     # when extending your application.
-    debug_app: true
+    debug_app: {{ teleport_config_app_service_debug_app }}
+{% if teleport_config_app_service_apps | length == 0 %}
+    apps: []
+{% else %}
     apps:
-      - name: "kubernetes-dashboard"
-        # URI and Port of Application.
-        uri: "http://10.0.1.27:8000"
-        # Optionally skip TLS verification. default false
-        # insecure_skip_verify: true
-        # Optional Public Addr
-        public_addr: "example.com"
-        # Optional Label: These can be used in combination with RBAC rules
-        # to limit access to applications
-        labels:
-           env: "prod"
-        # Optional Dynamic Labels
-        commands:
-        - name: "os"
-          command: ["/usr/bin/uname"]
-          period: "5s"
-        # Optional simple rewriting of Location header
-        # Rewrite the "Location" header on redirect responses replacing the
-        # host with the public address of this application.
-        # redirect:
-        #   - "localhost"
-        #   - "jenkins.internal.dev"
+{{ teleport_config_app_service_apps | to_yaml(indent=2, width=1337) | indent(6, first=True) }}
 {% endif %}
+
+
+{% endif %}
+#   enabled: yes
+#   # Teleport contains a small debug app that can be used to make sure Application
+#   # Access is working correctly. The app outputs JWTs so it can be useful
+#   # when extending your application.
+#   debug_app: true
+#   apps:
+#     - name: "kubernetes-dashboard"
+#       # URI and Port of Application.
+#       uri: "http://10.0.1.27:8000"
+#       # Optionally skip TLS verification. default false
+#       # insecure_skip_verify: true
+#       # Optional Public Addr
+#       public_addr: "example.com"
+#       # Optional Label: These can be used in combination with RBAC rules
+#       # to limit access to applications
+#       labels:
+#          env: "prod"
+#       # Optional Dynamic Labels
+#       commands:
+#       - name: "os"
+#         command: ["/usr/bin/uname"]
+#         period: "5s"
+#       # Optional simple rewriting of Location header
+#       # Rewrite the "Location" header on redirect responses replacing the
+#       # host with the public address of this application.
+#       # redirect:
+#       #   - "localhost"
+#       #   - "jenkins.internal.dev"
 
 {# Ansible not managed #}
 {% if false %}
@@ -709,7 +721,7 @@ kubernetes_service:
 # This section configures the 'database service'.
 db_service:
   # Enables the database service. Default is "no".
-  enabled: {{ teleport_config_db_service_enabled }} 
+  enabled: {{ teleport_config_db_service_enabled }}
   # This section contains definitions of all databases proxied by this
   # service, it can contain multiple database instances.
 {% if teleport_config_db_service_enabled == 'yes' and teleport_config_db_service_databases | length > 0 %}

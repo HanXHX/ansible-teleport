@@ -7,3 +7,12 @@ teleport_config_proxy_service_enabled: 'no'
 teleport_config_ssh_service_labels:
   teleport_type: teleport_node
   env: dev
+
+teleport_config_app_service_enabled: 'yes'
+teleport_config_app_service_apps:
+  - name: 'netdata'
+    uri: 'http://127.0.0.1:19999'
+    description: 'Internal netdata'
+    labels:
+      env: 'dev'
+      type: 'monitoring'
