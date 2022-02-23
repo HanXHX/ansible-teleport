@@ -577,7 +577,8 @@ proxy_service:
     # critical for Teleport security.
 {% if teleport_config_proxy_service_https_keypairs | length > 0 %}
 # -> TODO
-    https_keypairs: {{ teleport_config_proxy_service_key_pairs | to_yaml }}
+    https_keypairs:
+{{ teleport_config_proxy_service_https_keypairs | to_yaml(indent=2, width=1337) | indent(6, first=True) }}
 {% else %}
     #https_keypairs:
     #  - key_file: /var/lib/teleport/webproxy_key.pem

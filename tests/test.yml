@@ -4,10 +4,15 @@
 - hosts: servers
   gather_facts: true
   pre_tasks:
+    - name: TEMPLATE | Deploy openssl config
+      template:
+        src: templates/openssl.cnf.j2
+        dest: /root/openssl.cnf
+
     - name: COMMAND | Install openssl
-      command: openssl req -new -newkey rsa:4096 -days 3650 -nodes -x509 -subj "/CN={{ ansible_fqdn }}" -keyout {{ teleport_config_proxy_service_key_pairs.0.key_file }} -out {{ teleport_config_proxy_service_key_pairs.0.cert_file }}
+      command: openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout {{ teleport_config_proxy_service_https_keypairs.0.key_file }} -out {{ teleport_config_proxy_service_https_keypairs.0.cert_file }} -config /root/openssl.cnf
       args:
-        creates: "{{ teleport_config_proxy_service_key_pairs.0.key_file }}"
+        creates: "{{ teleport_config_proxy_service_https_keypairs.0.key_file }}"
 
 - hosts: all
   gather_facts: true
