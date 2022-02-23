@@ -19,11 +19,17 @@ teleport_config_app_service_apps:
 
 teleport_config_db_service_enabled: 'yes'
 teleport_config_db_service_databases:
-  - name: 'vagrant-node'
+  - name: 'vagrant-node-mariadb'
     description: 'My Vagrant MariaDB server'
     protocol: 'mysql'
     uri: 'localhost:3306'
+    static_labels:
+      env: 'staging'
+      type: 'mariadb'
   - name: 'vagrant-node-postgresql'
     description: 'My Vagrant PostgreSQL server'
     protocol: 'postgres'
     uri: 'localhost:5432'
+    static_labels:
+      env: 'testing'
+      type: 'postgresql'

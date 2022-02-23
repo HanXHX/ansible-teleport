@@ -1,6 +1,7 @@
 ---
 
 __shared_token_node: 'haexai1yoobairoh2ri0veiru7tohyoh'
+
 teleport_config_ssh_service_commands:
   - name: os_type
     command: ['/bin/uname', '-s']
@@ -11,3 +12,5 @@ teleport_config_ssh_service_commands:
   - name: os_version
     command: ['/usr/bin/lsb_release', '-rs']
     period: 24h0m0s
+
+teleport_config_teleport_log_severity: 'INFO'

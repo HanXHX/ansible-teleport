@@ -1,5 +1,6 @@
 ---
 
+
 - hosts: servers
   gather_facts: true
   pre_tasks:
@@ -43,6 +44,10 @@
       loop: "{{ __tls_files }}"
 
 - hosts: nodes
+  vars:
+    __db_user: 'test_teleport'
+    __db_pass: '1a2b3c'
+    __db_name: 'test_db'
   handlers:
     - name: restart mariadb
       service:
@@ -53,22 +58,34 @@
         name: postgresql
         state: restarted
   tasks:
+
     - name: APT | Install extra packages (application / database tests)
       apt:
         name: '{{ item }}'
         update_cache: yes
         cache_valid_time: 3600
-      loop: ['netdata', 'mariadb-server', 'mariadb-client', 'python3-pymysql', 'postgresql']
+      loop: ['netdata', 'mariadb-server', 'mariadb-client', 'python3-pymysql', 'postgresql', 'python3-psycopg2']
 
-    - name: COPY | Deploy teleport TLS config in the node
+    - name: COPY | Deploy teleport TLS config in the node for MariaDB
       copy:
         src: "{{ item }}"
         dest: "/home/vagrant/"
       with_fileglob: "{{ playbook_dir }}/tmp/server.*"
 
-    - name: SHELL | Dirty copy for postgresql
-      shell: 'cp /home/vagrant/server.* /etc/postgresql/ && chown postgres: /etc/postgresql/server.* && chmod 600 /etc/postgresql/server.*'
-      changed_when: false
+    - name: COPY | Deploy teleport TLS config in the node for PostgreSQL
+      copy:
+        src: "{{ item }}"
+        dest: /etc/postgresql/
+        owner: postgres
+        mode: 0600
+      with_fileglob: "{{ playbook_dir }}/tmp/server.*"
+
+    - name: LINEINFILE | Allow MariaDB to listen on all interfaces
+      lineinfile:
+        path: /etc/mysql/mariadb.conf.d/50-server.cnf
+        line: 'bind-address            = 0.0.0.0'
+        regexp: '^bind-address'
+      notify: restart mariadb
 
     - name: LINEINFILE | Deploy MariaDB custom config
       lineinfile:
@@ -85,8 +102,8 @@
 
     - name: MYSQL_USER | Create test users
       community.mysql.mysql_user:
-        user: 'test_teleport'
-        password: '1a2b3c'
+        user: '{{ __db_user }}'
+        password: '{{ __db_pass }}'
         priv: '*.*:ALL'
         login_unix_socket: "/run/mysqld/mysqld.sock"
 
@@ -113,3 +130,22 @@
         path: "/etc/postgresql/13/main/pg_hba.conf"
         line: "hostssl all             all             0.0.0.0/0               cert"
       notify: restart postgresql
+
+    - block:
+
+      - name: POSTGRESQL_DB | Create DB
+        postgresql_db:
+          name: '{{ __db_name }}'
+          login_unix_socket: /var/run/postgresql
+
+      - name: Connect to acme database, create django user, and grant access to database and products table
+        postgresql_user:
+          db: '{{ __db_name }}'
+          name: '{{ __db_user }}' 
+          password: '{{ __db_pass }}' 
+          login_unix_socket: /var/run/postgresql
+
+      # See: https://github.com/ansible/ansible/issues/16048#issuecomment-229012509
+      become_user: postgres
+      vars:
+        ansible_ssh_pipelining: true
