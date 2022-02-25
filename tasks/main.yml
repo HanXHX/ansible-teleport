@@ -1,5 +1,9 @@
 ---
 
+- name: ASSERT | Check the system use systemd
+  assert:
+    that: ansible_service_mgr == 'systemd'
+
 - name: STAT | Check if teleport installed
   stat:
     path: "{{ teleport_bin_path }}"
@@ -9,14 +13,16 @@
   import_tasks: install.yml
   when: not teleport_installed.stat.exists
 
+- name: IMPORT_TASKS | Insecure
+  import_tasks: insecure.yml
+
 - name: TEMPLATE | Configure Teleport
   template:
     src: teleport.yaml.j2
     dest: /etc/teleport.yaml
   notify: restart teleport
 
-- name: SERVICE | Ensure Teleport is started and enabled on boot
+- name: SERVICE | Ensure Teleport is enabled on boot
   service:
-    name: teleport 
-    state: started 
-    enabled: true 
+    name: teleport
+    enabled: true

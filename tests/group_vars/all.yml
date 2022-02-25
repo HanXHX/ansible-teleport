@@ -1,6 +1,7 @@
 ---
 
 __shared_token_node: 'haexai1yoobairoh2ri0veiru7tohyoh'
+teleport_insecure: true
 
 teleport_config_ssh_service_commands:
   - name: os_type

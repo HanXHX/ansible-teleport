@@ -1,6 +1,11 @@
 ---
 
 #
+# Debug
+#
+teleport_insecure: false
+
+#
 # Default values
 #
 teleport_default_public_addr: '{{ ansible_fqdn }}'
