@@ -131,53 +131,34 @@ teleport:
 {% endif %}
 
 {% if teleport_config_teleport_ca_signature_algo is not none %}
-# ---> TODO
     # CA Signing algorithm used for OpenSSH Certificates
     # Defaults to rsa-sha2-512 in 4.3 and above.
     # valid values are: ssh-rsa, rsa-sha2-256, rsa-sha2-512; ssh-rsa is SHA1
-    ca_signature_algo: "rsa-sha2-512"
+    ca_signature_algo: {{ teleport_config_teleport_ca_signature_algo }}
 {% endif %}
 
 {% if teleport_config_teleport_cyphers is not none %}
     # Cipher algorithms that the server supports. This section only needs to be
     # set if you want to override the defaults.
-# ---> TODO
-    ciphers:
-      - aes128-ctr
-      - aes192-ctr
-      - aes256-ctr
-      - aes128-gcm@openssh.com
-      - chacha20-poly1305@openssh.com
+    ciphers: {{ teleport_config_teleport_cyphers | to_yaml }}
 {% endif %}
 
 {% if teleport_config_teleport_kex_algos is not none %}
     # Key exchange algorithms that the server supports. This section only needs
     # to be set if you want to override the defaults.
-    kex_algos:
-      - curve25519-sha256@libssh.org
-      - ecdh-sha2-nistp256
-      - ecdh-sha2-nistp384
-      - ecdh-sha2-nistp521
+    kex_algos: {{ teleport_config_teleport_cyphers | to_yaml }}
 {% endif %}
 
 {% if teleport_config_teleport_mac_algos is not none %}
     # Message authentication code (MAC) algorithms that the server supports.
     # This section only needs to be set if you want to override the defaults.
-    mac_algos:
-      - hmac-sha2-256-etm@openssh.com
-      - hmac-sha2-256
+    mac_algos: {{ teleport_config_teleport_mac_algos | to_yaml }}
 {% endif %}
 
 {% if teleport_config_teleport_ciphersuites is not none %}
     # List of the supported ciphersuites. If this section is not specified,
     # only the default ciphersuites are enabled.
-    ciphersuites:
-       - tls-ecdhe-rsa-with-aes-128-gcm-sha256
-       - tls-ecdhe-ecdsa-with-aes-128-gcm-sha256
-       - tls-ecdhe-rsa-with-aes-256-gcm-sha384
-       - tls-ecdhe-ecdsa-with-aes-256-gcm-sha384
-       - tls-ecdhe-rsa-with-chacha20-poly1305
-       - tls-ecdhe-ecdsa-with-chacha20-poly1305
+    ciphersuites: {{ teleport_config_teleport_ciphersuites | to_yaml }}
 {% endif %}
 
 # This section configures the 'auth service':
@@ -443,8 +424,6 @@ ssh_service:
     # See explanation of labels in "Labeling Nodes and Applications" section
     # (https://goteleport.com/docs/admin-guide/#labeling-nodes-and-applications).
     labels: {{ teleport_config_ssh_service_labels | to_yaml }}
-#     role: leader
-#     type: postgres
 
     # List of the commands to periodically execute. Their output will be used as node labels.
     # See "Labeling Nodes" section for more information and more examples
@@ -555,12 +534,11 @@ proxy_service:
     public_addr: {{ teleport_config_proxy_service_public_addr }}
 
 {% if teleport_config_proxy_service_ssh_public_addr is not none %}
-# -> TODO
     # The DNS name of the proxy SSH endpoint as accessible by cluster clients.
     # Defaults to the proxy's hostname if not specified. If running multiple proxies
     # behind a load balancer, this name must point to the load balancer.
     # Use a TCP load balancer because this port uses SSH protocol.
-    ssh_public_addr: '10.10.10.10:3023'
+    ssh_public_addr: '{{ teleport_config_proxy_service_ssh_public_addr }}'
 {% endif %}
 
 {% if teleport_config_proxy_service_tunnel_public_addr is not none %}
@@ -569,23 +547,16 @@ proxy_service:
     # Defaults to the proxy's hostname if not specified. If running multiple proxies
     # behind a load balancer, this name must point to the load balancer.
     # Use a TCP load balancer because this port uses SSH protocol.
-# -> TODO
-    tunnel_public_addr: '10.10.10.10:3024'
+    tunnel_public_addr: '{{ teleport_config_proxy_service_tunnel_public_addr }}'
 {% endif %}
 
+{% if teleport_config_proxy_service_https_keypairs | length > 0 %}
     # TLS certificate for the HTTPS connection. Configuring these properly is
     # critical for Teleport security.
-{% if teleport_config_proxy_service_https_keypairs | length > 0 %}
-# -> TODO
     https_keypairs:
 {{ teleport_config_proxy_service_https_keypairs | to_yaml(indent=2, width=1337) | indent(6, first=True) }}
-{% else %}
-    #https_keypairs:
-    #  - key_file: /var/lib/teleport/webproxy_key.pem
-    #    cert_file: /var/lib/teleport/webproxy_cert.pem
-    #  - key_file: /etc/letsencrypt/live/*.teleport.example.com/privkey.pem
-    #    cert_file: /etc/letsencrypt/live/*.teleport.example.com/fullchain.pem
 {% endif %}
+
     # Kubernetes proxy listen address.
     #
     # If not set, behavior depends on the config file version:
@@ -648,196 +619,21 @@ app_service:
     apps:
 {{ teleport_config_app_service_apps | to_yaml(indent=2, width=1337) | indent(6, first=True) }}
 {% endif %}
-
-
-{% endif %}
-#   enabled: yes
-#   # Teleport contains a small debug app that can be used to make sure Application
-#   # Access is working correctly. The app outputs JWTs so it can be useful
-#   # when extending your application.
-#   debug_app: true
-#   apps:
-#     - name: "kubernetes-dashboard"
-#       # URI and Port of Application.
-#       uri: "http://10.0.1.27:8000"
-#       # Optionally skip TLS verification. default false
-#       # insecure_skip_verify: true
-#       # Optional Public Addr
-#       public_addr: "example.com"
-#       # Optional Label: These can be used in combination with RBAC rules
-#       # to limit access to applications
-#       labels:
-#          env: "prod"
-#       # Optional Dynamic Labels
-#       commands:
-#       - name: "os"
-#         command: ["/usr/bin/uname"]
-#         period: "5s"
-#       # Optional simple rewriting of Location header
-#       # Rewrite the "Location" header on redirect responses replacing the
-#       # host with the public address of this application.
-#       # redirect:
-#       #   - "localhost"
-#       #   - "jenkins.internal.dev"
-
-{# Ansible not managed #}
-{% if false %}
-## This section configures the 'kubernetes service'
-kubernetes_service:
-    enabled: yes
-    # Optional Public & Listen Addr: Set these if you are connecting to
-    # Teleport running inside a Kubernetes cluster instead of using a
-    # reverse tunnel.
-    #
-    # Optional Public Addr
-    public_addr: ['k8s.example.com:3026']
-    # Optional Listen Addr
-    listen_addr: 0.0.0.0:3026
-    # Optional kubeconfig_file and kube_cluster_name. Exactly one of these must be set.
-    #
-    # When running teleport outside of the kubernetes cluster, use kubeconfig_file to provide
-    # teleport with cluster credentials.
-    #
-    # When running teleport inside of the kubernetes cluster pod, use kube_cluster_name to
-    # provide a user-visible name. Teleport uses the pod service account credentials to authenticate
-    # to its local kubernetes API.
-    kubeconfig_file: /secrets/kubeconfig
-    kube_cluster_name:
-    # Optional labels: These can be used in combination with RBAC rules
-    # to limit access to applications.
-    # When using kubeconfig_file above, these labels apply to all kubernetes
-    # clusters specified in the kubeconfig.
-    labels:
-      env: "prod"
-    # Optional Dynamic Labels
-    - name: "os"
-       command: ["/usr/bin/uname"]
-       period: "5s"
-    # Get cluster name on GKE.
-    - name: cluster-name
-      command: ['curl', 'http://metadata.google.internal/computeMetadata/v1/instance/attributes/cluster-name', '-H', 'Metadata-Flavor: Google']
-      period: 1m0s
 {% endif %}
 
 # This section configures the 'database service'.
 db_service:
   # Enables the database service. Default is "no".
   enabled: {{ teleport_config_db_service_enabled }}
+{% if teleport_config_db_service_enabled == 'yes' %}
   # This section contains definitions of all databases proxied by this
   # service, it can contain multiple database instances.
-{% if teleport_config_db_service_enabled == 'yes' %}
 {% if teleport_config_app_service_apps | length == 0 %}
   databases: []
 {% else %}
   databases:
 {{ teleport_config_db_service_databases | to_yaml(indent=2, width=1337) | indent(6, first=True) }}
 {% endif %}
-
-# databases:
-#   # Name of the database proxy instance used to reference in CLI.
-#   - name: "prod"
-#     # Free-form description of the database proxy instance.
-#     description: "Production database"
-#     # Database protocol. Can be "postgres", "mysql", or "mongodb".
-#     protocol: "postgres"
-#     # Database connection endpoint. Must be reachable from Database Service.
-#     uri: "postgres.example.com:5432"
-#     # Optional TLS configuration.
-#     tls:
-#       # TLS verification mode. Valid options are:
-#       # 'verify-full' - performs full certificate validation (default).
-#       # 'verify-ca' - the same as `verify-full`, but skips the server name validation.
-#       # 'insecure' - accepts any certificate provided by database (not recommended).
-#       mode: verify-full
-#       # Optional database DNS server name. It allows to override the DNS name on
-#       # a client certificate when connecting to a database.
-#       # Use only with 'verify-full' mode.
-#       server_name: db.example.com
-#       # Optional path to the CA used to validate the database certificate.
-#       ca_cert_file: /path/to/pem
-#     # AWS specific configuration, only required for RDS/Aurora/Redshift.
-#     aws:
-#       # Region the database is deployed in.
-#       region: "us-east-1"
-#       # Redshift specific configuration.
-#       redshift:
-#         # Redshift cluster identifier.
-#         cluster_id: "redshift-cluster-1"
-#     # GCP specific configuration for Cloud SQL databases.
-#     gcp:
-#       # GCP project ID.
-#       project_id: "xxx-1234"
-#       # Cloud SQL instance ID.
-#       instance_id: "example"
-#     # Static labels to assign to the database. Used in RBAC.
-#     static_labels:
-#       env: "prod"
-#     # Dynamic labels ("commands"). Used in RBAC.
-#     dynamic_labels:
-#     - name: "hostname"
-#       command: ["hostname"]
-#       period: 1m0s
-{% endif %}
-
-{# Ansible not managed #}
-{% if false %}
-# This section configures the windows desktop service
-windows_desktop_service:
-  enabled: yes
-  # This is the address that windows_desktop_service will listen on.
-  listen_addr: "localhost:3028"
-  # (optional) This is the address that windows_desktop_service will advertise
-  # to the rest of Teleport for incoming connections. Only proxy_service should
-  # connect to windows_desktop_service, users connect to the proxy's web UI
-  # instead.
-  public_addr: "desktop-access.example.com:3028"
-  ldap:
-    # Address of the LDAP server for secure LDAP connections.
-    # Usually, this address will use port 636, like: ldap.example.com:636.
-    # For best results, this address should point to a highly-available
-    # endpoint (a load balancer, VIP, or round-robin DNS) rather than
-    # a single domain controller.
-    addr:     '$LDAP_SERVER_ADDRESS'
-    # Active Directory domain name you are connecting to.
-    domain:   '$LDAP_DOMAIN_NAME'
-    # LDAP username for authentication. This username must include the domain
-    # NetBIOS name.
-    #
-    # For example, if your domain is "example.com", the NetBIOS name for it is
-    # likely "EXAMPLE". When connecting as the "Administrator" user, you should
-    # use the format: "EXAMPLE\Administrator".
-    username: '$LDAP_USERNAME'
-    # Plain text file containing the LDAP password for authentication.
-    # This is usually the same password you use to login to the Domain Controller.
-    password_file: /var/lib/ldap-pass
-    # You can skip LDAPS certificate verification by setting
-    # this to true. It is recommended that this be set to false
-    # and the certificate added your system's trusted repository,
-    # or its filepath provided in with the der_ca_file variable below.
-    insecure_skip_verify: false
-    # DER encoded LDAP CA certificate.
-    der_ca_file: /path/to/cert
-  # (optional) settings for enabling automatic desktop discovery via LDAP
-  discovery:
-    # The wildcard '*' character tells Teleport to discover all the hosts in
-    # the Active Directory Domain. To refine the search, specify a custom DN.
-    # To disable automatic discovery, leave this field blank.
-    base_dn: '*'
-    # (optional) LDAP filters for further customizing the LDAP search.
-    # See https://ldap.com/ldap-filters for details on LDAP filter syntax.
-    filters:
-    - '(location=Oakland)'
-    - '(!(primaryGroupID=516))' # exclude domain controllers
-  # Rules for applying labels to Windows hosts based on regular expressions
-  # matched against the host name. If multiple rules match, the desktop will
-  # get the union of all matching labels.
-  host_labels:
-  - match: '^.*\.dev\.example\.com$'
-    labels:
-      environment: dev
-  - match: '^.*\.prod\.example\.com$'
-    labels:
-      environment: prod
 {% endif %}
 
 # vim: ft=yaml
