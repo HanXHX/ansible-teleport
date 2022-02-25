@@ -1,39 +1,70 @@
 Teleport Ansible Role
 =====================
 
-A brief description of the role goes here.
+[![Ansible Galaxy](http://img.shields.io/badge/ansible--galaxy-hanxhx.teleport-blue.svg)](https://galaxy.ansible.com/hanxhx/teleport/) [![Build Status](https://app.travis-ci.com/HanXHX/ansible-teleport.svg?branch=master)](https://app.travis-ci.com/HanXHX/ansible-teleport)
+
+Install and configure Teleport on Debian based OS
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+Due to packaging limitations, this role needs systemd.
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+...
 
 Dependencies
 ------------
 
 None.
 
-
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+Simple full node:
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+```
+- hosts: full.node.tld
+  vars:
+    teleport_config_auth_service_tokens:
+      - 'node:my_super_TOKEN'
+  roles:
+    - hanxhx.teleport
+```
+
+SSH node:
+
+```
+- hosts: ssh.node.tld
+  vars:
+    teleport_config_teleport_auth_token: 'my_super_TOKEN'
+    teleport_config_teleport_auth_servers: ['full.node.tld:443']
+    teleport_config_auth_service_enabled: 'no'
+    teleport_config_proxy_service_enabled: 'no'
+  roles:
+    - hanxhx.teleport
+```
 
 License
 -------
 
-MIT
+GPLv2
+
+Donation
+--------
+
+If this code helped you, or if you’ve used them for your projects, feel free to buy me some :beers:
+
+- Bitcoin: `1BQwhBeszzWbUTyK4aUyq3SRg7rBSHcEQn`
+- Ethereum: `63abe6b2648fd892816d87a31e3d9d4365a737b5`
+- Litecoin: `LeNDw34zQLX84VvhCGADNvHMEgb5QyFXyD`
+- Monero: `45wbf7VdQAZS5EWUrPhen7Wo4hy7Pa7c7ZBdaWQSRowtd3CZ5vpVw5nTPphTuqVQrnYZC72FXDYyfP31uJmfSQ6qRXFy3bQ`
+
+No crypto-currency? :star: the project is also a way of saying thank you! :sunglasses:
 
 Author Information
 ------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+- Twitter: [@hanxhx_](https://twitter.com/hanxhx_)

@@ -1,29 +1,35 @@
 ---
+
+env:
+  jobs:
+    - ANSIBLE_VERSION='>=2.11,<2.12'
+
+os:
+  - linux
+dist: focal
+
 language: python
-python: "2.7"
+python:
+  - 3.8
 
-# Use the new container infrastructure
-sudo: false
-
-# Install ansible
-addons:
-  apt:
-    packages:
-    - python-pip
+before_install:
+  - sudo apt-get -q update
+  - sudo apt-get install -y yamllint
 
 install:
-  # Install ansible
-  - pip install ansible
-
-  # Check ansible version
-  - ansible --version
-
-  # Create ansible.cfg with correct roles_path
-  - printf '[defaults]\nroles_path=../' >ansible.cfg
+  - sudo pip install "ansible-core$ANSIBLE_VERSION"
+  - sudo pip install ansible-lint
+  - ansible-galaxy collection install community.general community.postgresql community.mysql
 
 script:
-  # Basic role syntax check
-  - ansible-playbook tests/test.yml -i tests/inventory --syntax-check
+  - >
+    yamllint .
+    && (echo 'YAML lint test: pass' && exit 0)
+    || (echo 'YAML lint test: fail' && exit 1)
+  - >
+    ansible-lint -v tests/test.yml
+    && (echo 'Ansible lint test: pass' && exit 0)
+    || (echo 'Ansible lint test: fail' && exit 1)
 
 notifications:
   webhooks: https://galaxy.ansible.com/api/v1/notifications/

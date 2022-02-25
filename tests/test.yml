@@ -8,6 +8,9 @@
       template:
         src: templates/openssl.cnf.j2
         dest: /root/openssl.cnf
+        owner: root
+        group: root
+        mode: 0644
 
     - name: COMMAND | Install openssl
       command: openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout {{ teleport_config_proxy_service_https_keypairs.0.key_file }} -out {{ teleport_config_proxy_service_https_keypairs.0.cert_file }} -config /root/openssl.cnf
@@ -75,6 +78,9 @@
       copy:
         src: "{{ item }}"
         dest: "/home/vagrant/"
+        owner: root
+        group: root
+        mode: 0644
       with_fileglob: "{{ playbook_dir }}/tmp/server.*"
 
     - name: COPY | Deploy teleport TLS config in the node for PostgreSQL
@@ -97,6 +103,9 @@
         path: /etc/mysql/mariadb.conf.d/99-teleport-tls.cnf
         line: "{{ item }}"
         create: true
+        owner: root
+        group: root
+        mode: 0644
       loop:
         - '[mysqld]'
         - 'require_secure_transport=ON'
@@ -146,11 +155,12 @@
       - name: Connect to acme database, create django user, and grant access to database and products table
         postgresql_user:
           db: '{{ __db_name }}'
-          name: '{{ __db_user }}' 
-          password: '{{ __db_pass }}' 
+          name: '{{ __db_user }}'
+          password: '{{ __db_pass }}'
           login_unix_socket: /var/run/postgresql
 
       # See: https://github.com/ansible/ansible/issues/16048#issuecomment-229012509
+      become: true
       become_user: postgres
       vars:
         ansible_ssh_pipelining: true
